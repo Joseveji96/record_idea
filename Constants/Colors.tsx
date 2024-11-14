@@ -1,0 +1,1 @@
+export const blanco = "#030003"
