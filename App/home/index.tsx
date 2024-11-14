@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Image, Text, View } from 'react-native'
 import { blanco } from '../../Constants/Colors'
 import Botton from '../../components/Botton'
 
 const Home = () => {
+    const [isRecording, setIsRecording] = useState(false);
+    const handleRecordingToggle = () => {
+        setIsRecording(!isRecording)
+    }
   return (
     <View style={{paddingTop: 50, backgroundColor: blanco, width: "100%", height: "100%", paddingHorizontal: 20, flex: 1, alignItems: "center"}}>
         <View style={{paddingBottom: 24}}>
@@ -23,7 +27,7 @@ const Home = () => {
             <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                 <Image source={require("../../public/images/recordInd.png")}/>
                 {/* <Image source={require("../../public/images/recordBnt.png")}/> */}
-                <Botton/>
+                <Botton isRecording={isRecording} onToggleRecording={handleRecordingToggle}/>
             </View>
         </View>
     </View>
