@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Image, Text, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { Image, Text, View, Animated, useAnimatedValue} from 'react-native'
 import { blanco } from '../../Constants/Colors'
 import Botton from '../../components/Botton'
 
@@ -8,6 +8,21 @@ const Home = () => {
     const handleRecordingToggle = () => {
         setIsRecording(!isRecording)
     }
+    const animatedValue = useRef(new Animated.Value(0)).current;
+    
+    useEffect(() => {
+        Animated.timing(animatedValue, {
+          toValue: isRecording ? 1 : 0,
+          duration: 500,
+          useNativeDriver: false,
+        }).start();
+      }, [isRecording]);
+
+      const tintColor = animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: ["#302f33", "#ED423E"],
+      });
+
   return (
     <View style={{paddingTop: 50, backgroundColor: blanco, width: "100%", height: "100%", paddingHorizontal: 20, flex: 1, alignItems: "center"}}>
         <View style={{paddingBottom: 24}}>
@@ -19,7 +34,7 @@ const Home = () => {
                     <Text style={{textAlign: "center", color: "#A3A2A8" }}>NOV 13</Text>
                     <Text style={{textAlign: "center", color: "#A3A2A8" }}>2024</Text>
                 </View>
-                <Image source={require("../../public/images/RecordSign.png")} style={{width: 20, height: 20, tintColor: "#302f33"}}/>
+                <Animated.Image source={require("../../public/images/RecordSign.png")} style={{width: 20, height: 20, tintColor}}/>
             </View>
             <View style={{alignItems: "center", marginTop: -40}}>
                 <Image source={require("../../public/images/disk.png")}/>
