@@ -1,6 +1,7 @@
 import React from 'react'
 import { Image, Text, View } from 'react-native'
 import { blanco } from '../../Constants/Colors'
+import Botton from '../../components/Botton'
 
 const Home = () => {
   return (
@@ -21,7 +22,8 @@ const Home = () => {
             </View>
             <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                 <Image source={require("../../public/images/recordInd.png")}/>
-                <Image source={require("../../public/images/recordBnt.png")}/>
+                {/* <Image source={require("../../public/images/recordBnt.png")}/> */}
+                <Botton/>
             </View>
         </View>
     </View>
