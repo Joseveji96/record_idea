@@ -3,6 +3,7 @@ import { Image, Text, View, TouchableOpacity, TextInput, Keyboard, StyleSheet } 
 import { blanco } from '../../Constants/Colors';
 import Botton from '../../components/Botton';
 import Animated, { useSharedValue, withSpring, useAnimatedStyle, withTiming, withRepeat, cancelAnimation, Easing, interpolateColor } from 'react-native-reanimated';
+import RecordingAnim from '../../components/RecordingAnim';
 
 const Home = () => {
 	const date = new Date();
@@ -173,9 +174,7 @@ const Home = () => {
 							onPress={handlePress} onSubmitEditing={handlePress} keyboardType="twitter" multiline numberOfLines={5} 
 							placeholderTextColor={"#46464A"} style={styles.inputIdea} />
 							: 
-							<View style={{width: "100%", height: 35, backgroundColor: "rgba(170, 50, 48, 0.28)", borderRadius: 6, marginTop: 5}}>
-								
-							</View>
+							<RecordingAnim/>
 						}
 						
 						<View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
