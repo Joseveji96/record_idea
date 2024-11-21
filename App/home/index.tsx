@@ -174,7 +174,7 @@ const Home = () => {
 							onPress={handlePress} onSubmitEditing={handlePress} keyboardType="twitter" multiline numberOfLines={5} 
 							placeholderTextColor={"#46464A"} style={styles.inputIdea} />
 							: 
-							<RecordingAnim/>
+							<RecordingAnim />
 						}
 						
 						<View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
