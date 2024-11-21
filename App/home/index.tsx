@@ -182,9 +182,14 @@ const Home = () => {
 								<Image source={require("../../public/icons/gallery-add.png")} style={{ width: 16, height: 16 }} />
 								<Image source={require("../../public/icons/camera-01.png")} style={{ width: 16, height: 16 }} />
 							</View>
-							<TouchableOpacity onPress={handleButtonPress} style={{ width: 60, height: 30, paddingHorizontal: 3, backgroundColor: "rgba(29, 77, 12, 0.38)", borderRadius: 6, justifyContent: "center", alignItems: "center" }}>
-								<Text style={{ color: "#9BF99B", fontFamily: "MonoI", marginTop: -1 }}>Done</Text>
-							</TouchableOpacity>
+							{
+								isExpanded ? 
+								<TouchableOpacity onPress={handleButtonPress} style={{ width: 60, height: 30, paddingHorizontal: 3, backgroundColor: "rgba(29, 77, 12, 0.38)", borderRadius: 6, justifyContent: "center", alignItems: "center" }}>
+									<Text style={{ color: "#9BF99B", fontFamily: "MonoI", marginTop: -1 }}>Done</Text>
+								</TouchableOpacity>
+								: 
+								<></>
+							}
 						</View>
 					</View>
 				</View>
