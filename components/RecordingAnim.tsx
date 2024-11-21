@@ -1,176 +1,41 @@
+import React from 'react';
+import { View } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming } from 'react-native-reanimated';
 
-import React, { useEffect, useRef, useState } from 'react';
-import type { PropsWithChildren } from 'react';
-import Animated, {ReduceMotion, SlideInRight, ZoomIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
-import {
-  Easing,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const RecordingAnim = () => {
+    // Valor compartido para la animación
+    const animationValue = useSharedValue(0);
 
-import {
-  Colors,
-} from 'react-native/Libraries/NewAppScreen';
-import AudioRecorderPlayer, { AVEncoderAudioQualityIOSType, AVEncodingOption, AVModeIOSOption, AudioEncoderAndroidType, AudioSet, AudioSourceAndroidType } from 'react-native-audio-recorder-player';
+    // Inicia la animación de forma repetida (subiendo y bajando)
+    React.useEffect(() => {
+        animationValue.value = withRepeat(
+            withTiming(1, { duration: 500 }), // Duración de medio segundo
+            -1, // Repetir indefinidamente
+            true // Inversión de dirección (sube y baja)
+        );
+    }, []);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-const audioRecorderPlayer = new AudioRecorderPlayer();
-audioRecorderPlayer.setSubscriptionDuration(0.1)
-function myWorklet() {
-  console.log(`${"H"} from the UI thread`);
+    // Estilos animados para las barras
+    const animatedBarStyle1 = useAnimatedStyle(() => {
+        return {
+            height: 35 * animationValue.value + 5, // Varía la altura de la barra
+        };
+    });
+
+    const animatedBarStyle2 = useAnimatedStyle(() => {
+        return {
+            height: 35 * (1 - animationValue.value) + 5, // Segunda barra con animación opuesta
+        };
+    });
+
+    return (
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: "100%", height: 35, backgroundColor: "rgba(170, 50, 48, 0.28)", borderRadius: 6, marginTop: 5, padding: 5 }}>
+            <Animated.View style={[{ width: '20%', backgroundColor: 'red', borderRadius: 6 }, animatedBarStyle1]} />
+            <Animated.View style={[{ width: '20%', backgroundColor: 'red', borderRadius: 6 }, animatedBarStyle2]} />
+            <Animated.View style={[{ width: '20%', backgroundColor: 'red', borderRadius: 6 }, animatedBarStyle1]} />
+            <Animated.View style={[{ width: '20%', backgroundColor: 'red', borderRadius: 6 }, animatedBarStyle2]} />
+        </View>
+    );
 }
-
-function Section({ children, title }: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function RecordingAnim(): React.JSX.Element {
-  const audioSet: AudioSet = {
-    AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
-    AudioSourceAndroid: AudioSourceAndroidType.MIC,
-    AVModeIOS: AVModeIOSOption.measurement,
-    AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
-    AVNumberOfChannelsKeyIOS: 2,
-    AVFormatIDKeyIOS: AVEncodingOption.aac,
-  };
-
-  const [temp, setTemp] = useState([0,]);
-
-  const tempRef = useRef({ temp: [0,], isPlaying: false })
-  const width = useSharedValue(10);
-  const [isPlaying, setIsPlaing] = useState(false);
-
-  useEffect(() => {
-    setInterval(() => {
-  if (tempRef.current.isPlaying) {
-    let temp1 = [...tempRef.current.temp, 0]
-    tempRef.current.temp = temp1
-
-    setTemp(temp1)
-    width.value = (width.value + 10 + 5)
-      }
-    }, 100)
-  }, [])
-
-
-  const linear = Easing.linear
-  const customEasing = (value: number) => {
-    'worklet'
-    return value;
-  };
-
-  const style = useAnimatedStyle(() => {
-    return {
-      width: withTiming(width.value, {
-        duration: 100,
-        easing: customEasing,
-        reduceMotion: ReduceMotion.Never
-
-      }, () => {
-
-      }),
-
-    };
-  });
-
-  return (
-    <SafeAreaView style={{backgroundColor: "rgba(170, 50, 48, 0.28)",  borderRadius: 6}}>
-      <ScrollView contentInsetAdjustmentBehavior="automatic" style={{ width: "30%", marginTop: 10 }}> 
-        <Animated.View style={{ height: 20, display: 'flex', flexDirection: 'row-reverse', alignItems: 'center' }}>
-            <Animated.View entering={SlideInRight} style={[{ display: 'flex', flexDirection: 'row', overflow: 'hidden', gap: 10, alignItems: 'center' }, style]}>
-                {temp.map(t => {
-                    return <Animated.View entering={ZoomIn} style={{ height: t > 10 ? t : 10, width: 5, borderRadius: 200, backgroundColor: 'black', }} />
-                })}
-            </Animated.View>
-        </Animated.View>
-      </ScrollView>
-
-
-      <Pressable onPress={async () => {
-        console.log("pressing");
-        try {
-          if (!tempRef.current.isPlaying) {
-
-            console.log("STARTING")
-            const a = await audioRecorderPlayer.startRecorder(undefined, audioSet, true)
-            console.log(a)
-            audioRecorderPlayer.addRecordBackListener((e) => {
-              if (tempRef.current.isPlaying && e.currentMetering) {
-                let temp1 = [...tempRef.current.temp, (e.currentMetering + 70) * 1.2]
-                tempRef.current.temp = temp1
-
-                setTemp(temp1)
-                width.value = (width.value + 10 + 5)
-              }
-            })
-          }
-          else {
-            console.log(tempRef)
-            console.log("STOPPING")
-            await audioRecorderPlayer.removeRecordBackListener();
-
-            const a = await audioRecorderPlayer.stopRecorder();
-            console.log(a)
-          }
-        }
-        catch (error) {
-          console.log(error)
-        }
-        tempRef.current.isPlaying = !tempRef.current.isPlaying
-      }}><Text>Record/Stop</Text></Pressable>
-      <Pressable onPress={() => {
-        audioRecorderPlayer.startPlayer()
-      }}><Text>Play</Text></Pressable>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default RecordingAnim;
