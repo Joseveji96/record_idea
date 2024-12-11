@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Audio } from 'expo-av';
 import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-
 const RecordingAnim = () => {
   const [recording, setRecording] = useState<Audio.Recording | undefined>();
   const [sound, setSound] = useState<Audio.Sound | undefined>();
@@ -27,7 +26,7 @@ const RecordingAnim = () => {
       bitRate: 128000,
     },
     web: {
-      mimeType: 'audio/webm',
+      mimeType: 'audio/wav',
       bitsPerSecond: 128000,
     }
   };
@@ -94,34 +93,48 @@ const RecordingAnim = () => {
     try {
       // Stop recording
       await recording.stopAndUnloadAsync();
-      
-      // Get the URI of the recorded audio
       const uri = recording.getURI();
       
       if (uri) {
-        // Create and play the sound
         const { sound: playbackSound } = await Audio.Sound.createAsync(
           { uri },
-          { shouldPlay: true }
+          { shouldPlay: false }
         );
 
         setSound(playbackSound);
         setAudioUri(uri);
         setRecording(undefined);
 
-        // Optional: Handle sound playback completion
-        playbackSound.setOnPlaybackStatusUpdate(async (status) => {
-          if (status.didJustFinish) {
-            await playbackSound.unloadAsync();
-            setSound(undefined);
-          }
-        });
-
         console.log('Grabación guardada y reproduciendo:', uri);
+        await uploadAudio(uri);
       }
     } catch (err) {
       console.error('Error deteniendo grabación:', err);
       Alert.alert('Error', 'No se pudo detener la grabación');
+    }
+  };
+
+  const uploadAudio = async (uri: string) => {
+    const formData = new FormData();
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    formData.append('audio', blob, 'audio.3gp');
+    
+    try {
+      const response = await fetch(`${process.env.IP_URL_API}/audio-to-text`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+      console.log('Texto convertido:', result.texto);
+      Alert.alert('Texto detectado', result.texto); // Muestra el texto detectado
+    } catch (err) {
+      console.error('Error subiendo el audio:', err);
+      Alert.alert('Error', 'No se pudo subir el audio');
     }
   };
 
@@ -142,14 +155,6 @@ const RecordingAnim = () => {
       );
 
       setSound(playbackSound);
-
-      // Optional: Handle sound playback completion
-      playbackSound.setOnPlaybackStatusUpdate(async (status) => {
-        if (status.didJustFinish) {
-          await playbackSound.unloadAsync();
-          setSound(undefined);
-        }
-      });
     } catch (err) {
       console.error('Error reproduciendo audio:', err);
       Alert.alert('Error', 'No se pudo reproducir el audio');
@@ -170,7 +175,7 @@ const RecordingAnim = () => {
         ]}
       >
         <Text>
-          {recording ? 'Detener Grabación' : 'Iniciar Grabación'}
+          {recording ? 'Detener y enviar' : 'Iniciar Grabación'}
         </Text>
       </TouchableOpacity>
 
